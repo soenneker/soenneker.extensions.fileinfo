@@ -8,5 +8,5 @@
 ## Installation
 
 ```
-Install-Package Soenneker.Extensions.FileInfo
+dotnet add package Soenneker.Extensions.FileInfo
 ```
