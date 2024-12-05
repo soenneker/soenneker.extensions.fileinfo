@@ -2,6 +2,9 @@
 
 namespace Soenneker.Extensions.FileInfo;
 
+/// <summary>
+/// A collection of helpful FileInfo extension methods
+/// </summary>
 public static class FileInfoExtension
 {
     public static bool HasReadOnlyOrArchivedAttribute(this System.IO.FileInfo value)
