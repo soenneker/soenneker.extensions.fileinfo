@@ -3,8 +3,9 @@
 [![](https://img.shields.io/nuget/dt/Soenneker.Extensions.FileInfo.svg?style=for-the-badge)](https://www.nuget.org/packages/Soenneker.Extensions.FileInfo/)
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.extensions.fileinfo/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.extensions.fileinfo/actions/workflows/codeql.yml)
 
-# ![]({Package:Icon75x75}) Soenneker.Extensions.FileInfo
-A collection of helpful FileInfo extension methods.
+# ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Extensions.FileInfo
+
+Checks and removes `System.IO.FileAttributes` flags through `FileInfo`.
 
 ## Installation
 
@@ -12,18 +13,31 @@ A collection of helpful FileInfo extension methods.
 dotnet add package Soenneker.Extensions.FileInfo
 ```
 
-## Quick start
+## Check attributes
 
 ```csharp
+using System.IO;
 using Soenneker.Extensions.FileInfo;
 
-// Given an existing System.IO.FileInfo named value:
-var result = value.HasReadOnlyOrArchivedAttribute();
+var file = new FileInfo("report.csv");
+
+bool protectedOrArchived = file.HasReadOnlyOrArchivedAttribute();
+bool both = file.HasAttributeSet(FileAttributes.ReadOnly | FileAttributes.Archive);
 ```
 
-## Common operations
+`HasReadOnlyOrArchivedAttribute()` returns true when either flag is present. `HasAttributeSet()` requires every requested flag to be present. Passing `0` to `HasAttributeSet()` returns true, following normal bitmask semantics.
 
-- `HasReadOnlyOrArchivedAttribute()` - Determines whether the specified file has either the ReadOnly or Archive attribute set.
-- `RemoveReadOnlyOrArchivedAttribute()` - Removes the read-only and archived attributes from the specified file, if they are set. This method modifies the file's attributes in place.
-- `HasAttributeSet()` - Determines whether the specified set of file attributes is present on the file represented by this `System.IO.FileInfo` instance.
-- `RemoveAttribute()` - Removes the specified file attributes from the current file represented by the given `System.IO.FileInfo` instance.
+Reading `FileInfo.Attributes` accesses filesystem metadata and can throw when the path is missing, inaccessible, or unsupported by the platform.
+
+## Remove attributes
+
+```csharp
+file.RemoveReadOnlyOrArchivedAttribute();
+
+// Or remove a specific combination:
+file.RemoveAttribute(FileAttributes.ReadOnly | FileAttributes.Hidden);
+```
+
+Both methods modify the file’s attributes on disk. `RemoveAttribute()` does nothing when none of the requested flags are present; after a write it refreshes the `FileInfo` metadata. Filesystem access, permission, and platform exceptions propagate to the caller.
+
+`RemoveAttribute()` accepts any `FileAttributes` flags, not only cosmetic flags. Avoid removing structural or platform-specific flags unless that is explicitly intended.
